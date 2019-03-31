@@ -73,7 +73,6 @@ def parshiotSplit():
         parshiot[each] = splitParsha(each)
     return parshiot
 
-print(parshiotSplit()['Chayei Sara'][-9]==parshiotSplit()['Chayei Sara'][-7])
 
 
 
