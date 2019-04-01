@@ -55,7 +55,7 @@ for parsha,t in p.items():
     parshiot[parsha] = text
 
 
-splitParshiot = copy.copy(parshiot)
+splitParshiot = copy.deepcopy(parshiot)
 
 # return a tokenized parsha - a list of the parsha words as entries
 def splitParsha(parshaName):
@@ -113,11 +113,13 @@ def processWordByFrequency(word):
 # return the dictionary of parshiot and text, but with each word processed to 2 letter frequency
 # the words will still be maintained, so TF-IDF can be run and the same indeces can be used to return the full words
 def processParshiotByFrequency():
-    freqParshiot = copy.copy(splitParshiot)
+    freqParshiot = copy.deepcopy(splitParshiot)
     for parsha, value in splitParshiot.items():
         for i in range(len(value)): # for each word in the parsha
             value[i] = processWordByFrequency(value[i])
     return freqParshiot
+
+
 
 
 
