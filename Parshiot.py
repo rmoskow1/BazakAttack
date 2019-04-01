@@ -3,6 +3,9 @@ the first verse in the Parsha: Chayei Sarah from the Sefaria database text"""
 
 from pymongo import MongoClient
 from collections import OrderedDict, defaultdict
+import math
+import copy
+from BazakAttack import HebrewLetterFrequency
 
 # version of the text being used
 VERSION_TITLE = "Tanach with Text Only"
@@ -52,6 +55,7 @@ for parsha,t in p.items():
     parshiot[parsha] = text
 
 
+splitParshiot = copy.copy(parshiot)
 
 # return a tokenized parsha - a list of the parsha words as entries
 def splitParsha(parshaName):
@@ -69,9 +73,59 @@ def parshiot2d():
 
 # return dictionary of "tokenized" parshiot - each parsha as key with each word in parsha in a list as the value
 def parshiotSplit():
-    for each in parshiot:
-        parshiot[each] = splitParsha(each)
-    return parshiot
+    for each in splitParshiot:
+        splitParshiot[each] = splitParsha(each)
+    return splitParshiot
+
+
+# strip the text down by letter frequency - only keeping the 2 most frequent letters in each hebrew word
+def processWordByFrequency(word):
+    frequencies = HebrewLetterFrequency.main()
+
+    if len(word) == 1: return word
+
+    # remove all ending letters
+    for j in range(len(word)):
+        if word[j] in HebrewLetterFrequency.endings.keys():
+            word = word.replace(word[j], HebrewLetterFrequency.endings[word[j]])
+
+    if (frequencies[word[0]]<frequencies[word[1]]):
+        min1 = word[0] #smallest
+        min2 = word[1]
+    else:
+        min1 = word[1]
+        min2 = word[0]
+
+    for i in range(2,len(word)+1):
+        try:
+            freq = frequencies[word(i)]
+        except: # error occured and letter was not found in frequencies
+            freq = math.inf # will never be more than minimum
+        if freq < frequencies[min2]:
+            if freq < frequencies[min1]: # the current letter has the smallest frequency
+                min2 = min1
+                min1 = word[i]
+            else: # the current letter has the second smallest frequency
+                min2 = word[i]
+    return min1+min2
+
+
+# return the dictionary of parshiot and text, but with each word processed to 2 letter frequency
+# the words will still be maintained, so TF-IDF can be run and the same indeces can be used to return the full words
+def processParshiotByFrequency():
+    freqParshiot = copy.copy(splitParshiot)
+    for parsha, value in splitParshiot.items():
+        for i in range(len(value)): # for each word in the parsha
+            value[i] = processWordByFrequency(value[i])
+    return freqParshiot
+
+
+
+
+
+
+
+
 
 
 

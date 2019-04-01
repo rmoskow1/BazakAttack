@@ -29,16 +29,23 @@ for book in full_text:
             for each in hebrew_chars:
                 char_count[each]+= char_list.count(each)
 
+# char_count['כ'] += char_count['ך']
+# char_count['נ'] += char_count['ן']
+# char_count['צ'] += char_count['ץ']
+# char_count['מ'] += char_count['ם']
+# char_count['פ'] += char_count['ף']
+
+
+
+endings = dict(zip('ם ץ ן ך ף'.split(), 'מ צ נ כ פ'.split()))
+
 # equate the count for ending letters
-char_count['כ'] += char_count['ך']
-char_count['נ'] += char_count['ן']
-char_count['צ'] += char_count['ץ']
-char_count['מ'] += char_count['ם']
-char_count['פ'] += char_count['ף']
+for endChar, normalChar in endings.items():
+    char_count[normalChar] += char_count[endChar]
 
 # remove superfluous counts of ending letters
-endings = 'ם ץ ן ך ף'.split()
-for char in endings: del char_count[char]
+for char in endings.keys(): del char_count[char]
+
 
 
 def main():
