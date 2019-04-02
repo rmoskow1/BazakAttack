@@ -15,6 +15,7 @@ import numpy
 import math
 from collections import Counter
 import re
+from BazakAttack import Parshiot
 
 
 # create a dictionary of TF values for each word in the text
@@ -49,6 +50,30 @@ def _TFCalculteHebrew(full_text_array):
     # return the TF dictionary containing each word and its relative frequency
     return TF
 
+# create a dictionary of TF values for each word in the hebrew text, calculated by 2 letter frequency values of text
+def _TFCalculteHebrewFreq(full_text_array, freq_text_array):
+    # hebrew text is already tokenized from Parshiot.py
+
+    # count the frequencies in the 2 letter words
+    TF = Counter(freq_text_array)
+
+    # divide by total number of words
+    textLength = len(freq_text_array)
+    for each in TF:
+        TF[each] /= textLength
+
+    # create a counter for the full words. Set each TF to the TF of the 2 letter word calculated before
+    TFFinal = Counter(full_text_array)
+
+    for word in TFFinal:
+        freqWord = Parshiot.processWordByFrequency(word)
+        TFFinal[word] = TF[freqWord]
+
+    # return the TF dictionary containing each word and its relative frequency
+    return TFFinal
+
+
+
 
 # assumes textCollection is a collection of arrays of text
 # calculate the IDF for an individual word
@@ -73,6 +98,19 @@ def TFIDF(singleText, textCollection, lang='english'):
     return TFIDF
 
 
+# currently only expecting hebrew text
+def TFIDFFreq(singleText, freqTextcollection, freqSingleText):
+
+    # calculate TFIDF using values from the frequency collection - the text converted to 2 letters words of the rarest
+    # frequency
+
+    TFIDF = _TFCalculteHebrewFreq(singleText, freqSingleText)
+
+    # use the idf value of the frequency word
+    for each in TFIDF:
+        TFIDF[each] *= _IDFCalculate(freqTextcollection, Parshiot.processWordByFrequency(each))
+    return TFIDF
+
 # expecting text of english bible organized by chapters
 def chapterIDF(chapterNum, TEXT_NAME):
     f = open(TEXT_NAME, 'rU')
@@ -86,6 +124,10 @@ def chapterIDF(chapterNum, TEXT_NAME):
 def parshaIDF(parshaName, parshiot):
     return TFIDF(parshiot[parshaName], parshiot, 'hebrew')
 
+
+# expecting tokenized hebrew text organized by parshiot
+def parshaFreqIDF(parshaName, parshiot, freqParshiot):
+    return TFIDFFreq(parshiot[parshaName], freqParshiot, freqParshiot[parshaName])
 
 
 

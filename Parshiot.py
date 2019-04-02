@@ -117,7 +117,12 @@ def processParshiotByFrequency():
     for parsha, value in splitParshiot.items():
         for i in range(len(value)): # for each word in the parsha
             value[i] = processWordByFrequency(value[i])
+        freqParshiot[parsha] = value
     return freqParshiot
+
+
+parshiotSplit()
+
 
 
 
