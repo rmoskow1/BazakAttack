@@ -50,6 +50,7 @@ def _TFCalculteHebrew(full_text_array):
     # return the TF dictionary containing each word and its relative frequency
     return TF
 
+
 # create a dictionary of TF values for each word in the hebrew text, calculated by 2 letter frequency values of text
 def _TFCalculteHebrewFreq(full_text_array, freq_text_array):
     # hebrew text is already tokenized from Parshiot.py
@@ -71,7 +72,6 @@ def _TFCalculteHebrewFreq(full_text_array, freq_text_array):
 
     # return the TF dictionary containing each word and its relative frequency
     return TFFinal
-
 
 
 
@@ -119,6 +119,7 @@ def chapterIDF(chapterNum, TEXT_NAME):
     # split the text on the regex below to match every Chapter
     rawTextChapters = re.split(r'Chapter\s\d+', raw)
     return TFIDF(rawTextChapters[chapterNum], rawTextChapters)
+
 
 # expecting tokenized hebrew text organized by parshiot
 def parshaIDF(parshaName, parshiot):
