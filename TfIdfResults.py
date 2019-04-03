@@ -13,9 +13,17 @@ def englishChapter():
 
 PARSHA_NAME = 'Chayei Sara'
 
+def englishParshiot():
+    parshiot = Parshiot.createSplitParshiot('en')
+    print("Calculating regular english TD-IDF for ", PARSHA_NAME)
+    results = TFIDF.parshaIDF(PARSHA_NAME, parshiot)
+    print(results)
+    print("20 most common:")
+    print(results.most_common(20))
+
 
 def hebrewParshiot():
-    parshiot = Parshiot.parshiotSplit()
+    parshiot = Parshiot.createSplitParshiot()
     print("Calculating regular hebrew TD-IDF for ", PARSHA_NAME)
     results = TFIDF.parshaIDF(PARSHA_NAME, parshiot)
     print(results)
@@ -23,7 +31,7 @@ def hebrewParshiot():
     print(results.most_common(20))
 
 def hebrewParshiotWithFreq():
-    parshiot = Parshiot.parshiotSplit()
+    parshiot = Parshiot.createSplitParshiot()
     parshiotFreq = Parshiot.processParshiotByFrequency()
     print("Calculating hebrew TD-IDF for ", PARSHA_NAME, " based on minimum letter frequency")
     results = TFIDF.parshaFreqIDF(PARSHA_NAME, parshiot, parshiotFreq)
@@ -32,6 +40,7 @@ def hebrewParshiotWithFreq():
     print(results.most_common(20))
 
 
+englishParshiot()
 hebrewParshiot()
 hebrewParshiotWithFreq()
 
