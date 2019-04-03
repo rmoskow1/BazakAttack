@@ -95,12 +95,8 @@ def processWordByFrequency(word):
     else:
         min1 = word[1]
         min2 = word[0]
-
-    for i in range(2,len(word)+1):
-        try:
-            freq = frequencies[word(i)]
-        except: # error occured and letter was not found in frequencies
-            freq = math.inf # will never be more than minimum
+    for i in range(2,len(word)):
+        freq = frequencies[word[i]]
         if freq < frequencies[min2]:
             if freq < frequencies[min1]: # the current letter has the smallest frequency
                 min2 = min1
@@ -113,15 +109,12 @@ def processWordByFrequency(word):
 # return the dictionary of parshiot and text, but with each word processed to 2 letter frequency
 # the words will still be maintained, so TF-IDF can be run and the same indeces can be used to return the full words
 def processParshiotByFrequency():
-    freqParshiot = copy.deepcopy(splitParshiot)
-    for parsha, value in splitParshiot.items():
+    freqParshiot = copy.deepcopy(parshiotSplit())
+    for parsha, value in freqParshiot.items():
         for i in range(len(value)): # for each word in the parsha
             value[i] = processWordByFrequency(value[i])
         freqParshiot[parsha] = value
     return freqParshiot
-
-
-parshiotSplit()
 
 
 

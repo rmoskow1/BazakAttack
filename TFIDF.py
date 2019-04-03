@@ -127,7 +127,13 @@ def parshaIDF(parshaName, parshiot):
 
 # expecting tokenized hebrew text organized by parshiot
 def parshaFreqIDF(parshaName, parshiot, freqParshiot):
-    return TFIDFFreq(parshiot[parshaName], freqParshiot, freqParshiot[parshaName])
+    freqTFIDF = TFIDF(freqParshiot[parshaName], freqParshiot, 'hebrew')
+    regTFIDF = Counter(parshiot[parshaName])
+    for word,value in regTFIDF.items():
+        regTFIDF[word] = freqTFIDF[Parshiot.processWordByFrequency(word)]
+    return regTFIDF
+
+
 
 
 
