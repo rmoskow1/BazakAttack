@@ -4,7 +4,7 @@ section. """
 
 from BazakAttack import Parshiot
 
-MIN_DISTANCE = 90
+MIN_DISTANCE = 80
 MIN_WORD_COUNT = 5
 
 # for a given text, find all the significant words - the words that are repeated within the appropriate distance
