@@ -11,7 +11,7 @@ def englishChapter():
     print(TFIDF.chapterIDF(chapterNum, TEXT_NAME))
 
 
-PARSHA_NAME = 'Chayei Sara'
+PARSHA_NAME = 'Toldot'
 
 def englishParshiot():
     parshiot = Parshiot.createSplitParshiot('en')
@@ -40,9 +40,16 @@ def hebrewParshiotWithFreq():
     print(results.most_common(20))
 
 
-englishParshiot()
-hebrewParshiot()
-hebrewParshiotWithFreq()
+def testingSingleParsha():
+    englishParshiot()
+    hebrewParshiot()
+    hebrewParshiotWithFreq()
+
+testingSingleParsha()
+
+
+
+
 
 
 

@@ -36,6 +36,7 @@ def _TFCalculte(rawText):
     # return the TF dictionary containing each word and its relative frequency
     return TF
 
+
 # create a dictionary of TF values for each word in the hebrew text
 def _TFCalculteHebrew(full_text_array):
     # hebrew text is already tokenized from Parshiot.py
@@ -80,11 +81,10 @@ def _TFCalculteHebrewFreq(full_text_array, freq_text_array):
 def _IDFCalculate(textCollection, word):
     num_documents_with_word = 0
     for each in textCollection:
-        if word in each:
+        if word in textCollection[each]:
             num_documents_with_word+=1
     if num_documents_with_word >0:
         return math.log(len(textCollection)/num_documents_with_word)
-    # TODO: determine appropriate behavior for return when the number of documents is 0
     return 1
 
 

@@ -4,10 +4,14 @@ the first verse in the Parsha: Chayei Sarah from the Sefaria database text"""
 from pymongo import MongoClient
 from collections import OrderedDict, defaultdict
 from BazakAttack import HebrewLetterFrequency
+import re
+import copy
 
 # version of the text being used
 VERSION_TITLE_HEB = "Tanach with Text Only"
+
 VERSION_TITLE_ENG = "The Holy Scriptures: A New Translation (JPS 1917)"
+VERSION_TITLE_ENG2 = "The Koren Jerusalem Bible"
 
 
 # process text from sefaria and create dictionary by parshiot for the english text
@@ -69,21 +73,77 @@ def _createParshiot(version):
     return parshiot
 
 
+# return a list of parsha names used by sefaria's db. This will be helpful for iterating through all parshiot
+def parshaNames():
+    # connect to the db server
+    client = MongoClient()
+    db = client.sefaria
+
+    # code from Prof. Joshua Waxman
+    parshiot = db.parshiot
+    p = OrderedDict()
+    stop_list = "Yom Sukkot Pesach Rosh Shabbat Atzeret Shavuot -".split()
+    for parsha in parshiot.find():
+        name = parsha['parasha']
+        if not any(word in name for word in stop_list) or name == "Lech-Lecha":
+            p[name] = 0
+    return p.keys()
+
+
 # return a tokenized parsha - a list of the parsha words
-def splitParsha(parshaName, parshiot):
+def splitParsha(parshaName, parshiot, lang = 'heb'):
     list = []
     for i in parshiot[parshaName]:
         words = i.split(" ")
-        for each in words: list.append(each)
-    return(list)
+        # strip punctuations and convert to lowercase
+        for each in words:
+            if lang == 'heb':
+                # the Hebrew has this upper index seperating words as part of the trup
+                # but these aren't actually one word
+                splitEach = each.split('־')
+                list.extend(splitEach)
+            else:
+                # for the english text
+                list.append(re.sub(r'[^[\w\s|[-־]', '',  each.lower()))
+    return list
 
 
 
 # return dictionary of "tokenized" parshiot - each parsha as key with each word in parsha in a list as the value
-def parshiotSplit(splitParshiot):
+def parshiotSplit(splitParshiot, lang = 'heb'):
     for each in splitParshiot:
-        splitParshiot[each] = splitParsha(each, splitParshiot)
+        splitParshiot[each] = splitParsha(each, splitParshiot, lang)
     return splitParshiot
+
+
+# in a slight differentiation from Koppel's code, process word by taking the 3 least frequent letters, preserving
+# original order and possible letter duplicates
+def processWordBy3LetterFrequency(word):
+    frequencies = HebrewLetterFrequency.main()
+
+    # remove all ending letters
+    for j in range(len(word)):
+        if word[j] in HebrewLetterFrequency.endings.keys():
+            word = word.replace(word[j], HebrewLetterFrequency.endings[word[j]])
+
+    if len(word) <= 3: return word
+
+    # get the minimum 3 frequencies
+    wordListFreq = [frequencies[x] for x in list(word)]
+
+    while len(wordListFreq)>3:
+        wordListFreq.remove(max(wordListFreq))
+
+    # remove all but the minimum 3 letters, but preserve original order
+    wordList = list(word)
+    finalWordList = copy.deepcopy(wordList)
+    for each in wordList:
+        if frequencies[each] in wordListFreq:
+            wordListFreq.remove(frequencies[each])
+        else:
+            finalWordList.remove(each)
+    # return string of the final words, in original order
+    return ''.join(finalWordList)
 
 
 # strip the text down by letter frequency - only keeping the 2 most frequent letters in each hebrew word
@@ -97,8 +157,9 @@ def processWordByFrequency(word):
         if word[j] in HebrewLetterFrequency.endings.keys():
             word = word.replace(word[j], HebrewLetterFrequency.endings[word[j]])
 
+
     if (frequencies[word[0]]<frequencies[word[1]]):
-        min1 = word[0] #smallest
+        min1 = word[0]  #smallest
         min2 = word[1]
     else:
         min1 = word[1]
@@ -114,13 +175,14 @@ def processWordByFrequency(word):
     return min1+min2
 
 
-# return the dictionary of parshiot and text, but with each word processed to 2 letter minimum frequency
+# return the dictionary of parshiot and text, but with each word processed to 2/3 TODO:determine frequency
+#  letter minimum frequency
 # the words will still be maintained, so TF-IDF can be run and the same indeces can be used to return the full words
 def processParshiotByFrequency():
     freqParshiot = parshiotSplit(createSplitParshiot())
     for parsha, value in freqParshiot.items():
         for i in range(len(value)): # for each word in the parsha
-            value[i] = processWordByFrequency(value[i])
+            value[i] = processWordBy3LetterFrequency(value[i])
         freqParshiot[parsha] = value
     return freqParshiot
 
@@ -131,8 +193,13 @@ def createSplitParshiot(lang='heb'):
         parshiot = createHebParshiot()
     else:
         parshiot = createEngParshiot()
-    splitParshiot = parshiotSplit(parshiot)
+    splitParshiot = parshiotSplit(parshiot, lang)
     return splitParshiot
+
+
+
+
+
 
 
 
