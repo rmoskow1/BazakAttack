@@ -2,10 +2,16 @@
 If there's repetition of a word MIN_WORD_COUNT of times within MIN_DISTANCE - there's a significance to the word and the
 section. """
 
-from BazakAttack import Parshiot
+from BazakAttack import Parshiot, TFIDF
 
+
+# minimum distance between start and end of word repetitions
 MIN_DISTANCE = 80
+# minimum number of words required to be repeated to determine a leitwort
 MIN_WORD_COUNT = 5
+# percent of TF-IDF to filter by. (For only leitworts that were within the top PERCENT% of TF-IDF scoring words for the
+# parsha)
+PERCENT = 10
 
 # for a given text, find all the significant words - the words that are repeated within the appropriate distance
 # return a dictionary with significant words as keys and the indeces where they occur in the text as values
@@ -46,6 +52,34 @@ def freqBazaakParshaRead(parshaName, freqParshiot = None, min_count=MIN_WORD_COU
     return BazaakRead(parsha, min_count, min_distance)
 
 
+# do a bazaak read that is then "filtered" by TF-IDF results. Only use the words which are in the top %50 percent of the
+# scored TF-IDF words
+def filterBazaakParshaReadTFIDF(parshaName, lang='heb', min_count=MIN_WORD_COUNT,
+                                splitParshiot=None, min_distance=MIN_DISTANCE):
+    if not splitParshiot:
+        splitParshiot = Parshiot.createSplitParshiot(lang)
+
+    topTFIDF = TFIDF.parshaIDF(parshaName, splitParshiot)
+    totalWords = len(topTFIDF)
+
+    # find the percentage needed
+    print("total words:", totalWords)
+    percent = PERCENT / 100
+
+    topTFIDF = topTFIDF.most_common(int(totalWords*percent))
+
+    # just get the keys, the words
+    topTFIDF = [i[0] for i in topTFIDF]
+
+    parsha = splitParshiot[parshaName]
+    read = BazaakRead(parsha, min_count, min_distance)
+
+    # create a new dictionary, only containing results where the key was in the top PERCENT% of TF-IDF scores
+    newRead = {k: v for k, v in read.items() if k in topTFIDF}
+
+    return newRead
+
+
 # for a given text (assuming a list of words, tokenized) return a dictionary of the unique words and the indeces
 # of where each word is found in the text
 def _indices(text):
@@ -54,7 +88,6 @@ def _indices(text):
     # generate list of indices for where each word is found
     for word in unique_words:
         indices = [index for index, value in enumerate(text) if value == word]
-      #  indices = list(numpy.where(full_text == word)[0])
         indices_list[word] = indices
     return indices_list
 
@@ -94,17 +127,20 @@ def _findSection(indeces, min_count):
 
 def testParsha():
     # perform a bazaak read for a parsha
-    parsha = 'Ha\'Azinu'
+    parsha = 'Bereshit'
+    lang = 'heb'
     print("Finding signifcant words in ", parsha, " for min words=", MIN_WORD_COUNT, " and min distance=", MIN_DISTANCE)
-    print(BazaakParshaRead(parsha, lang= 'en').keys())
+    print(BazaakParshaRead(parsha, lang).keys())
 
-    print(len(BazaakParshaRead(parsha, 'en')))
-    print(BazaakParshaRead(parsha, 'en'))
+    print(len(BazaakParshaRead(parsha, lang)))
+    print(BazaakParshaRead(parsha, lang))
 
-    print("Finding significant freqWords in ", parsha)
-    print(len(freqBazaakParshaRead(parsha)))
-    print(freqBazaakParshaRead(parsha))
+    print("Testing the tfidf filtering...")
+    print(len((filterBazaakParshaReadTFIDF(parsha, lang).keys())))
 
+    print((filterBazaakParshaReadTFIDF(parsha, lang).keys()))
+
+testParsha()
 
 
 

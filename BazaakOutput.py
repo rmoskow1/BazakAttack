@@ -29,6 +29,7 @@ def BazaakOutput(lang = 'heb', min_count=5, parshaResults = None, fileName=None)
                              'repeated words': list(parshaResults[parsha].keys())})
 
 
+
 # perform a bazaak read for all parshiot and return a dictionary with parsha names as key and bazaak read results as
 # values
 def BazaakAll(lang = 'heb', min_count=5, min_distance=80):

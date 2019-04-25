@@ -39,13 +39,28 @@ def hebrewParshiotWithFreq():
     print("20 most common:")
     print(results.most_common(20))
 
+def hebrewParshiotTop():
+    parshiot = Parshiot.createSplitParshiot()
+    print("Calculating regular hebrew TD-IDF for ", PARSHA_NAME)
+    results = TFIDF.parshaIDF(PARSHA_NAME, parshiot)
+    print(results)
+    print(len(results))
+    percent = int(len(results)/2)
+    print("top 50% of results: ", percent)
+    print(results.most_common(percent))
+    r = results.most_common(percent)
+    l = [i[0] for i in r]
+    print(l)
+
 
 def testingSingleParsha():
     englishParshiot()
     hebrewParshiot()
     hebrewParshiotWithFreq()
+    hebrewParshiotTop()
 
-testingSingleParsha()
+
+
 
 
 
