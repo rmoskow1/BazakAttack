@@ -28,12 +28,13 @@ def BazaakOutput(lang = 'heb', min_count=5, parshaResults = None, fileName=None)
             writer.writerow({'parsha': parsha,
                              'repeated words': list(parshaResults[parsha].keys())})
 
+
 def BazaakFilteredOutput(lang = 'heb', min_count=5, parshaResults = None, fileName=None):
     if not fileName:
         fileName = subDir + lang + 'Bazaak' + 'TFIDFOutput' + '.csv'
     parshaNames = Parshiot.parshaNames()
     if not parshaResults:
-        parshaResults = BazaakAll(lang, min_count, filtered='true')
+        parshaResults = BazaakAll(lang, min_count, filtered=True)
 
     with open(fileName, mode='w', encoding='utf-8') as csv_file:
         fieldnames = ['parsha', 'repeated important words']
@@ -47,7 +48,7 @@ def BazaakFilteredOutput(lang = 'heb', min_count=5, parshaResults = None, fileNa
 
 # perform a bazaak read for all parshiot and return a dictionary with parsha names as key and bazaak read results as
 # values
-def BazaakAll(lang = 'heb', min_count=5, min_distance=80, filtered='false'):
+def BazaakAll(lang = 'heb', min_count=5, min_distance=80, filtered= False):
     parshiot = Parshiot.createSplitParshiot(lang)
     parshaResults = {}
     if filtered: # filter with TF-IDF results
@@ -70,7 +71,8 @@ def compareCounts(hebResults, engResults):
 
 
 # plot the bazaak count comparision per parsha between the english and the hebrew
-def plotCountComparison(countResults):
+# or, if filtering, plot the bazaak count comparison per parsha between the original and filtered results
+def plotCountComparison(countResults, filtering=False, lang='heb'):
     N = len(parshaNames)
     results = list(zip(*countResults.values()))
 
@@ -87,17 +89,23 @@ def plotCountComparison(countResults):
     ax.set_title('Compare Leitwort Counts')
     ax.set_xticks(ind + width / 2)
     ax.set_xticklabels(parshaNames)
-    plt.xticks(rotation='45')
+    plt.xticks(rotation='90')
     plt.tight_layout()
 
-    ax.legend((rects1[0], rects2[0]), ('Hebrew', 'English'))
-    plt.show()
+    # if this is TF-IDF filtering, name accordingly
+    if filtering:
+        ax.legend((rects1[0], rects2[0]), ('Original', 'Filtered'))
+        fileName = subDir +lang +'TFIDFfilteringCountDifferences'+'.pdf'
+    else:
+        ax.legend((rects1[0], rects2[0]), ('Hebrew', 'English'))
+        fileName = subDir+'langLeitwortCountDifferences.pdf'
 
-    fig.savefig(subDir+'langLeitwortCountDifferences.pdf')
+    plt.show()
+    fig.savefig(fileName)
 
 
 # plot the different bazaak count results, per parsha, based on the different minimum word count requirements
-def plotVariedCountResults(results, lang='heb'):
+def plotVariedMinCountResults(results, lang='heb'):
     N = len(parshaNames)
 
     # results are now the count of words for each parsha, and each list entry is for a different minimum word count
@@ -118,11 +126,10 @@ def plotVariedCountResults(results, lang='heb'):
     ax.set_title('Compare Varied Minimum Leitwort Counts '+ lang)
     ax.set_xticks(ind + width*2 / 2)
     ax.set_xticklabels(parshaNames)
-    plt.xticks(rotation='45')
+    plt.xticks(rotation='90')
 
     ax.legend((rects1[0], rects2[0], rects3[0]), ('5', '6', '7'))
     plt.show()
-
     fig.savefig(subDir+'leitwortMinCountDifferences'+lang+'.pdf')
 
 
@@ -160,8 +167,24 @@ def variedMinWordCounts():
             variedEnCountResults[parsha].append(len(engResults[i][parsha]))
 
     # plot the hebrew and the english results separately
-    plotVariedCountResults(variedHebCountResults)
-    plotVariedCountResults(variedEnCountResults, 'en')
+    plotVariedMinCountResults(variedHebCountResults)
+    plotVariedMinCountResults(variedEnCountResults, 'en')
+
+
+# plot the variations of leitwort counts per parsha comparing all results to only results filtered by TF-IDF
+# significance
+def variedFilteredTFIDFCounts(lang='heb'):
+    countResults = {}
+
+    allResults = BazaakAll(lang=lang)
+    filteredResults = BazaakAll(lang=lang, filtered=True)
+    for parsha in parshaNames:
+        countResults[parsha] = [len(allResults[parsha]), len(filteredResults[parsha])]
+
+    # plot the differences in count, before and after TF-IDF filtering
+    plotCountComparison(countResults, filtering=True, lang=lang)
+
+
 
 
 # produce results for a different minimum distance
@@ -175,15 +198,31 @@ def testNewDistance(min_distance):
 
 
 
-
 def main():
 
+    # output Bazaak results in english and hebrew with default values to CSV files
     writeBazaakToCSV()
+
+    # plot the differences in english and hebrew leitwort counts with default values and save in Results
     variedHebrewEnglishCounts()
+
+    # test increasing the minimum distance for leitworts in english and hebrew
     testNewDistance(90)
+
+    # plot the differences in changing the minimum word count for leitworts
     variedMinWordCounts()
-    BazaakFilteredOutput()
-    BazaakFilteredOutput(lang='en')
+
+    # do Bazaak reads with TF-IDF filtering
+    BazaakFilteredOutput() # hebrew
+    BazaakFilteredOutput(lang='en') # english
+
+    # plot the differences in results with TF-IDF filtering vs original
+    variedFilteredTFIDFCounts(lang='en')
+    variedFilteredTFIDFCounts()
+
+
+
+
 
 
 
