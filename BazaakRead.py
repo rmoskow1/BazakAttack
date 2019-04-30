@@ -11,7 +11,7 @@ MIN_DISTANCE = 80
 MIN_WORD_COUNT = 5
 # percent of TF-IDF to filter by. (For only leitworts that were within the top PERCENT% of TF-IDF scoring words for the
 # parsha)
-PERCENT = 10
+PERCENT = 50
 
 # for a given text, find all the significant words - the words that are repeated within the appropriate distance
 # return a dictionary with significant words as keys and the indeces where they occur in the text as values
@@ -63,7 +63,6 @@ def filterBazaakParshaReadTFIDF(parshaName, lang='heb', min_count=MIN_WORD_COUNT
     totalWords = len(topTFIDF)
 
     # find the percentage needed
-    print("total words:", totalWords)
     percent = PERCENT / 100
 
     topTFIDF = topTFIDF.most_common(int(totalWords*percent))
@@ -140,7 +139,7 @@ def testParsha():
 
     print((filterBazaakParshaReadTFIDF(parsha, lang).keys()))
 
-testParsha()
+
 
 
 

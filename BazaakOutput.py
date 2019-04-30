@@ -28,15 +28,35 @@ def BazaakOutput(lang = 'heb', min_count=5, parshaResults = None, fileName=None)
             writer.writerow({'parsha': parsha,
                              'repeated words': list(parshaResults[parsha].keys())})
 
+def BazaakFilteredOutput(lang = 'heb', min_count=5, parshaResults = None, fileName=None):
+    if not fileName:
+        fileName = subDir + lang + 'Bazaak' + 'TFIDFOutput' + '.csv'
+    parshaNames = Parshiot.parshaNames()
+    if not parshaResults:
+        parshaResults = BazaakAll(lang, min_count, filtered='true')
+
+    with open(fileName, mode='w', encoding='utf-8') as csv_file:
+        fieldnames = ['parsha', 'repeated important words']
+        writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
+
+        writer.writeheader()
+        for parsha in parshaNames:
+            writer.writerow({'parsha': parsha,
+                             'repeated important words': list(parshaResults[parsha].keys())})
 
 
 # perform a bazaak read for all parshiot and return a dictionary with parsha names as key and bazaak read results as
 # values
-def BazaakAll(lang = 'heb', min_count=5, min_distance=80):
+def BazaakAll(lang = 'heb', min_count=5, min_distance=80, filtered='false'):
     parshiot = Parshiot.createSplitParshiot(lang)
     parshaResults = {}
-    for parsha in parshaNames:
-        parshaResults[parsha] = BazaakRead.BazaakParshaRead(parsha, lang, min_count, parshiot, min_distance)
+    if filtered: # filter with TF-IDF results
+        for parsha in parshaNames:
+            parshaResults[parsha] = BazaakRead.filterBazaakParshaReadTFIDF(parsha, lang,
+                                                                           min_count, parshiot, min_distance)
+    else:
+        for parsha in parshaNames:
+            parshaResults[parsha] = BazaakRead.BazaakParshaRead(parsha, lang, min_count, parshiot, min_distance)
     return parshaResults
 
 
@@ -154,12 +174,18 @@ def testNewDistance(min_distance):
     BazaakOutput(lang='en', parshaResults=engResults, fileName=fileNameEng)
 
 
+
+
 def main():
 
     writeBazaakToCSV()
     variedHebrewEnglishCounts()
     testNewDistance(90)
     variedMinWordCounts()
+    BazaakFilteredOutput()
+    BazaakFilteredOutput(lang='en')
+
+
 
 
 
