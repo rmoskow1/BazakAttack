@@ -48,8 +48,12 @@ def BazaakFilteredOutput(lang = 'heb', min_count=5, parshaResults = None, fileNa
 
 # perform a bazaak read for all parshiot and return a dictionary with parsha names as key and bazaak read results as
 # values
-def BazaakAll(lang = 'heb', min_count=5, min_distance=80, filtered= False):
-    parshiot = Parshiot.createSplitParshiot(lang)
+# only return filtered by tf-idf values if filtered = True
+# use strippedDown hebrew if strippedDown = True
+def BazaakAll(lang = 'heb', min_count=5, min_distance=80, filtered= False, strippedDown=True):
+    if strippedDown:
+        parshiot = Parshiot.processParshiotByFrequency()
+    else: parshiot = Parshiot.createSplitParshiot(lang)
     parshaResults = {}
     if filtered: # filter with TF-IDF results
         for parsha in parshaNames:
@@ -133,9 +137,11 @@ def plotVariedMinCountResults(results, lang='heb'):
     fig.savefig(subDir+'leitwortMinCountDifferences'+lang+'.pdf')
 
 
+# write all the leitworts for all the texts, with default leitwort parameters to csv
 def writeBazaakToCSV():
     BazaakOutput()
     BazaakOutput('en')
+    BazaakOutput(parshaResults = BazaakAll(strippedDown=True), fileName= subDir+"strippedHebBazaakOutput.csv")
 
 
 # plot the differences in count between the hebrew and the english per parsha
@@ -219,9 +225,6 @@ def main():
     # plot the differences in results with TF-IDF filtering vs original
     variedFilteredTFIDFCounts(lang='en')
     variedFilteredTFIDFCounts()
-
-
-
 
 
 
