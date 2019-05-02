@@ -5,7 +5,6 @@ import csv
 from BazakAttack import TFIDF
 from BazakAttack import Parshiot
 
-# TODO:simplify code into one method
 
 subDir = 'Results\\'
 
@@ -15,7 +14,7 @@ def TFIDFOutput(lang='heb'):
     parshiot = Parshiot.createSplitParshiot(lang)
     parshaResults = {}
 
-    with open(subDir+'parshaResults'+lang+'.csv', mode='w', encoding='utf-8') as csv_file:
+    with open(subDir+lang+ 'TFIDFParshaResults'+'.csv', mode='w', encoding='utf-8') as csv_file:
         fieldnames = ['parsha', 'most relevant words']
         writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
 
@@ -30,7 +29,7 @@ def hebrewFreqParshiot():
     parshiot = Parshiot.processParshiotByFrequency()
     parshaResults = {}
 
-    with open(subDir+'TFIDFparshaResultsHebFreq.csv', mode='w', encoding='utf-8') as csv_file:
+    with open(subDir+'strippedHebTFIDFparshaResults.csv', mode='w', encoding='utf-8') as csv_file:
         fieldnames = ['parsha', 'most relevant words']
         writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
 
@@ -39,8 +38,6 @@ def hebrewFreqParshiot():
             parshaResults[parsha] = TFIDF.parshaIDF(parsha, parshiot).most_common(20)
             writer.writerow({'parsha': parsha,
                              'most relevant words': [a[0] for a in parshaResults[parsha]]})
-
-
 
 def main():
     TFIDFOutput()
