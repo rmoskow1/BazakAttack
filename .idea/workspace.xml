@@ -2,30 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="ac014ab4-000a-41bb-9829-4442b48d55e6" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/BazakAttack.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/extract_parshiot_etcb.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/parshiot.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/shorashim.out.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/shorashim.torah.out.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/BazaakOutput.py" beforeDir="false" afterPath="$PROJECT_DIR$/BazaakOutput.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/BazaakRead.py" beforeDir="false" afterPath="$PROJECT_DIR$/BazaakRead.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Parshiot.py" beforeDir="false" afterPath="$PROJECT_DIR$/Parshiot.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Results/enBazaakOutput.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Results/enBazaakOutput.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Results/enBazaakOutput90.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Results/enBazaakOutput90.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Results/enBazaakTFIDFOutput.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Results/enBazaakTFIDFOutput.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Results/enTFIDFfilteringCountDifferences.pdf" beforeDir="false" afterPath="$PROJECT_DIR$/Results/enTFIDFfilteringCountDifferences.pdf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Results/hebBazaakOutput.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Results/hebBazaakOutput.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Results/hebBazaakOutput90.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Results/hebBazaakOutput90.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Results/hebBazaakTFIDFOutput.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Results/hebBazaakTFIDFOutput.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Results/hebTFIDFfilteringCountDifferences.pdf" beforeDir="false" afterPath="$PROJECT_DIR$/Results/hebTFIDFfilteringCountDifferences.pdf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Results/langLeitwortCountDifferences.pdf" beforeDir="false" afterPath="$PROJECT_DIR$/Results/langLeitwortCountDifferences.pdf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Results/leitwortMinCountDifferencesen.pdf" beforeDir="false" afterPath="$PROJECT_DIR$/Results/leitwortMinCountDifferencesen.pdf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Results/leitwortMinCountDifferencesheb.pdf" beforeDir="false" afterPath="$PROJECT_DIR$/Results/leitwortMinCountDifferencesheb.pdf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Results/strippedHebBazaakOutput.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Results/strippedHebBazaakOutput.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/TFIDF.py" beforeDir="false" afterPath="$PROJECT_DIR$/TFIDF.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/extract_parshiot_etcb.py" beforeDir="false" afterPath="$PROJECT_DIR$/extract_parshiot_etcb.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/parshiot.txt" beforeDir="false" afterPath="$PROJECT_DIR$/parshiot.txt" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -58,8 +36,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/extract_parshiot_etcb.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="120">
-              <caret line="100" column="46" selection-start-line="100" selection-start-column="46" selection-end-line="100" selection-end-column="46" />
+            <state relative-caret-position="343">
+              <caret line="136" column="12" selection-start-line="136" selection-start-column="12" selection-end-line="136" selection-end-column="12" />
               <folding>
                 <element signature="e#21#52#0" expanded="true" />
               </folding>
@@ -79,7 +57,11 @@
       </file>
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/parshiot.txt">
-          <provider selected="true" editor-type-id="text-editor" />
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="152">
+              <caret line="53" selection-start-line="53" selection-end-line="53" />
+            </state>
+          </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
@@ -141,6 +123,12 @@
       <find>&lt;b</find>
       <find>'&lt;b'</find>
       <find>yt</find>
+      <find>br</find>
+      <find>p</find>
+      <find>No</find>
+      <find>parsh</find>
+      <find>leit</find>
+      <find>parsha_text</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -311,8 +299,8 @@
       <breakpoints>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/extract_parshiot_etcb.py</url>
-          <line>87</line>
-          <option name="timeStamp" value="2" />
+          <line>129</line>
+          <option name="timeStamp" value="3" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
@@ -383,12 +371,16 @@
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/parshiot.txt">
-      <provider selected="true" editor-type-id="text-editor" />
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="152">
+          <caret line="53" selection-start-line="53" selection-end-line="53" />
+        </state>
+      </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/extract_parshiot_etcb.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="120">
-          <caret line="100" column="46" selection-start-line="100" selection-start-column="46" selection-end-line="100" selection-end-column="46" />
+        <state relative-caret-position="343">
+          <caret line="136" column="12" selection-start-line="136" selection-start-column="12" selection-end-line="136" selection-end-column="12" />
           <folding>
             <element signature="e#21#52#0" expanded="true" />
           </folding>
