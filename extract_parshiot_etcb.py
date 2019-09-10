@@ -15,6 +15,24 @@ p = OrderedDict()
 parsha_text = dict()
 parsha_refs = dict()
 
+romanization = None
+def unromanize(shoresh: str) -> str:
+    global romanization
+    if romanization is None: # load the first time
+        fin = open("romanization.txt", encoding='utf-8')
+        romanization = {}
+        for line in fin:
+            enLetter, heLetter = line.strip().split("\t")
+            romanization[enLetter] = heLetter
+        fin.close()
+
+    hebrew = ""
+    for letter in shoresh:
+        if letter in romanization:
+            hebrew += romanization[letter]
+    return hebrew
+
+
 def createParshiot():
     # connect to the db server
     client = MongoClient()
@@ -56,7 +74,7 @@ def createParshiot():
 
         # handle middle chapters
         for chapter in range(start_ch+1, end_ch):
-            for verse in range(1, end_v+1):
+            for verse in range(1, 1000):
                 ref = sefer + ' ' + str(chapter) + ' ' + str(verse)
                 if ref in pasuk_dict:
                     text += [root for _, root in pasuk_dict[ref]] + [':']
@@ -124,27 +142,35 @@ def gather_tf_idf():
 def find_leitworte():
     parsha = 'Bereshit' # for sample while dev
 
-    VERSE_WINDOW = 70
+    leitworte = []
+
+    VERSE_WINDOW = 20
     REPETITION = 7
     verses = parsha_text[parsha].split(' : ')
     refs = parsha_refs[parsha]
-    for verse in verses:
-        print(verse)
-        break
+    word_occurrences = defaultdict(list)
 
     bagOfWordsSpan = defaultdict(int)
+    bagOfWordsCurrent = defaultdict(int)
     bagOfWordsQueue = []
     refQueue = []
     n = len(verses)
     for i, (verse, ref) in enumerate(zip(verses, refs), 1):
         # on removal, check if after span comes into scope, it works as Leitwort
-        if (len(bagOfWordsQueue) == VERSE_WINDOW or i == len(verses)) and len(bagOfWordsQueue) > 0:
-            r = refQueue.pop(0)
-            r2 = refQueue[-1]
-            for word, count in bagOfWordsSpan.items():
-                if count % REPETITION == 0:
-                    print(r, '-', r2, word, "occurred", count, "times")
+        last_verse = (i == len(verses))
+        if (len(bagOfWordsQueue) == VERSE_WINDOW or last_verse) and len(bagOfWordsQueue) > 0:
 
+
+            for word, count in bagOfWordsSpan.items():
+                if count % REPETITION == 0 and (last_verse or (word not in bagOfWordsCurrent and word in bagOfWordsQueue[0])):
+                    r = word_occurrences[word][0]
+                    r2 = word_occurrences[word][-1]
+                    lower_word = word.lower()
+                    tfidf = tf_parsha[parsha][lower_word]
+                    heb = unromanize(word)
+                    print(r, '-', r2, heb, "occurred", count, "times with tf-idf of", tfidf)
+
+            refQueue.pop(0)
             # time to shift off the first item
             # maybe should use the fast one from
             # collections to speed this up
@@ -156,14 +182,16 @@ def find_leitworte():
                 if bagOfWordsSpan[word] == 0:
                     del bagOfWordsSpan[word]
 
+                word_occurrences[word].pop(0)
+
         bagOfWordsCurrent = defaultdict(int)
         words = verse.split()
         for word in words: # start with unigrams
             bagOfWordsCurrent[word] += 1
             bagOfWordsSpan[word] += 1
 
-        # if there is a gap of any word not occurring
-        # in pasuk then maybe this was section for Leitwort
+            if word_occurrences[word] == [] or word_occurrences[word][-1] != ref:
+                word_occurrences[word].append(ref)
 
         bagOfWordsQueue.append(bagOfWordsCurrent)
         refQueue.append(ref)
