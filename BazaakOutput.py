@@ -1,4 +1,4 @@
-from BazakAttack import Parshiot, BazaakRead
+import Parshiot, BazaakRead
 import csv
 import numpy as np
 import matplotlib.pyplot as plt

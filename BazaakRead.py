@@ -2,8 +2,7 @@
 If there's repetition of a word MIN_WORD_COUNT of times within MIN_DISTANCE - there's a significance to the word and the
 section. """
 
-from BazakAttack import Parshiot, TFIDF
-
+import Parshiot, TFIDF
 
 # minimum distance between start and end of word repetitions
 MIN_DISTANCE = 80

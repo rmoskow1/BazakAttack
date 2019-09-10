@@ -15,8 +15,7 @@ import numpy
 import math
 from collections import Counter
 import re
-from BazakAttack import Parshiot
-
+import Parshiot
 
 # create a dictionary of TF values for each word in the text
 def _TFCalculte(rawText):

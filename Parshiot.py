@@ -3,7 +3,7 @@ the first verse in the Parsha: Chayei Sarah from the Sefaria database text"""
 
 from pymongo import MongoClient
 from collections import OrderedDict, defaultdict
-from BazakAttack import HebrewLetterFrequency
+import HebrewLetterFrequency
 import re
 import copy
 
