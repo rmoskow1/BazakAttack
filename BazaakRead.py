@@ -138,9 +138,7 @@ def testParsha():
 
     print((filterBazaakParshaReadTFIDF(parsha, lang).keys()))
 
-
-
-
+testParsha()
 
 
 

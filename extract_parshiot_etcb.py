@@ -83,7 +83,7 @@ def createParshiot():
     pnames = ["Bereshit", "Noach", "Lech-Lecha", "Vayera", "Chayei Sara", "Toldot", "Vayetzei", "Vayishlach", "Vayeshev", "Miketz", "Vayigash", "Vayechi", "Shemot", "Vaera", "Bo", "Beshalach", "Yitro", "Mishpatim", "Terumah", "Tetzaveh", "Ki Tisa", "Vayakhel", "Pekudei", "Vayikra", "Tzav", "Shmini", "Tazria", "Metzora", "Achrei Mot", "Kedoshim", "Emor", "Behar", "Bechukotai", "Bamidbar", "Nasso", "Beha'alotcha", "Sh'lach", "Korach", "Chukat", "Balak", "Pinchas", "Matot", "Masei", "Devarim", "Vaetchanan", "Eikev", "Re'eh", "Shoftim", "Ki Teitzei", "Ki Tavo", "Nitzavim", "Vayeilech", "Ha'Azinu", "VeZot HaBeracha"]
     f = open('parshiot.txt', 'w', encoding='utf-8')
     for name in pnames:
-        print(' '.join(parsha_text[name]), file=f)
+        print(parsha_text[name], file=f)
     f.close()
 
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -124,19 +124,51 @@ def gather_tf_idf():
 def find_leitworte():
     parsha = 'Bereshit' # for sample while dev
 
-    VERSE_WINDOW = 20
+    VERSE_WINDOW = 70
     REPETITION = 7
     verses = parsha_text[parsha].split(' : ')
+    refs = parsha_refs[parsha]
     for verse in verses:
         print(verse)
         break
 
-    bagOfWordsSpan = dict()
-    bagOfWordsCurrent = dict()
-    for verse in verses:
-        pass
+    bagOfWordsSpan = defaultdict(int)
+    bagOfWordsQueue = []
+    refQueue = []
+    n = len(verses)
+    for i, (verse, ref) in enumerate(zip(verses, refs), 1):
+        # on removal, check if after span comes into scope, it works as Leitwort
+        if (len(bagOfWordsQueue) == VERSE_WINDOW or i == len(verses)) and len(bagOfWordsQueue) > 0:
+            r = refQueue.pop(0)
+            r2 = refQueue[-1]
+            for word, count in bagOfWordsSpan.items():
+                if count % REPETITION == 0:
+                    print(r, '-', r2, word, "occurred", count, "times")
 
-    print('moo')
+            # time to shift off the first item
+            # maybe should use the fast one from
+            # collections to speed this up
+            p = bagOfWordsQueue.pop(0)
+            # remove each word from span
+            for word, count in p.items():
+                bagOfWordsSpan[word] -= count
+
+                if bagOfWordsSpan[word] == 0:
+                    del bagOfWordsSpan[word]
+
+        bagOfWordsCurrent = defaultdict(int)
+        words = verse.split()
+        for word in words: # start with unigrams
+            bagOfWordsCurrent[word] += 1
+            bagOfWordsSpan[word] += 1
+
+        # if there is a gap of any word not occurring
+        # in pasuk then maybe this was section for Leitwort
+
+        bagOfWordsQueue.append(bagOfWordsCurrent)
+        refQueue.append(ref)
+
+
     # todo finish leitwort detection
 
 # step 1: create the parshiot.txt, helpful for tf-idf
