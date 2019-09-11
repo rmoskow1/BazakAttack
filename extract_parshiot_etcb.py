@@ -3,6 +3,7 @@
 from pymongo import MongoClient
 from collections import OrderedDict, defaultdict
 from pprint import pprint
+from csv import writer
 
 f = open("shorashim.torah.out.txt", 'r', encoding='utf-8')
 pasuk_dict = dict()
@@ -140,64 +141,104 @@ def gather_tf_idf():
    pprint(tf_parsha)
 
 def find_leitworte():
-    parsha = 'Bereshit' # for sample while dev
+    pnames = ["Bereshit", "Noach", "Lech-Lecha", "Vayera", "Chayei Sara", "Toldot", "Vayetzei", "Vayishlach",
+              "Vayeshev",
+              "Miketz", "Vayigash", "Vayechi", "Shemot", "Vaera", "Bo", "Beshalach", "Yitro", "Mishpatim", "Terumah",
+              "Tetzaveh", "Ki Tisa", "Vayakhel", "Pekudei", "Vayikra", "Tzav", "Shmini", "Tazria", "Metzora",
+              "Achrei Mot", "Kedoshim", "Emor", "Behar", "Bechukotai", "Bamidbar", "Nasso", "Beha'alotcha", "Sh'lach",
+              "Korach", "Chukat", "Balak", "Pinchas", "Matot", "Masei", "Devarim", "Vaetchanan", "Eikev", "Re'eh",
+              "Shoftim", "Ki Teitzei", "Ki Tavo", "Nitzavim", "Vayeilech", "Ha'Azinu", "VeZot HaBeracha"]
 
-    leitworte = []
+    VERSE_WINDOW = 60
+    REPETITION = 3
 
-    VERSE_WINDOW = 20
-    REPETITION = 7
-    verses = parsha_text[parsha].split(' : ')
-    refs = parsha_refs[parsha]
-    word_occurrences = defaultdict(list)
+    f = open('leitworte.' + str(VERSE_WINDOW) + '.' + str(REPETITION) + '.csv', 'w', encoding='utf-8', newline='')
+    csv_writer = writer(f)
 
-    bagOfWordsSpan = defaultdict(int)
-    bagOfWordsCurrent = defaultdict(int)
-    bagOfWordsQueue = []
-    refQueue = []
-    n = len(verses)
-    for i, (verse, ref) in enumerate(zip(verses, refs), 1):
-        # on removal, check if after span comes into scope, it works as Leitwort
-        last_verse = (i == len(verses))
-        if (len(bagOfWordsQueue) == VERSE_WINDOW or last_verse) and len(bagOfWordsQueue) > 0:
+    csv_writer.writerow('start_ref,end_ref,span,half_span_length,heb,repetitions,tfidf'.split(','))
 
+    for parsha in pnames:
+        verses = parsha_text[parsha].split(' : ')
+        refs = parsha_refs[parsha]
+        word_occurrences = defaultdict(list)
 
-            for word, count in bagOfWordsSpan.items():
-                if count % REPETITION == 0 and (last_verse or (word not in bagOfWordsCurrent and word in bagOfWordsQueue[0])):
-                    r = word_occurrences[word][0]
-                    r2 = word_occurrences[word][-1]
-                    lower_word = word.lower()
-                    tfidf = tf_parsha[parsha][lower_word]
-                    heb = unromanize(word)
-                    print(r, '-', r2, heb, "occurred", count, "times with tf-idf of", tfidf)
+        # first pass. just calculate bagOfWords for each verse
+        bagOfWordsVerses = []
+        for verse in verses:
+            bagOfWordsCurrent = defaultdict(int)
+            words = verse.split()
+            for word in words: # start with unigrams
+                bagOfWordsCurrent[word] += 1
+            bagOfWordsVerses.append(bagOfWordsCurrent)
 
-            refQueue.pop(0)
-            # time to shift off the first item
-            # maybe should use the fast one from
-            # collections to speed this up
-            p = bagOfWordsQueue.pop(0)
-            # remove each word from span
-            for word, count in p.items():
-                bagOfWordsSpan[word] -= count
-
-                if bagOfWordsSpan[word] == 0:
-                    del bagOfWordsSpan[word]
-
-                word_occurrences[word].pop(0)
-
+        bagOfWordsSpan = defaultdict(int)
         bagOfWordsCurrent = defaultdict(int)
-        words = verse.split()
-        for word in words: # start with unigrams
-            bagOfWordsCurrent[word] += 1
-            bagOfWordsSpan[word] += 1
+        bagOfWordsQueue = []
+        refQueue = []
+        n = len(verses)
+        for i, (verse, ref, bow) in enumerate(zip(verses, refs, bagOfWordsVerses), 1):
+            # on removal, check if after span comes into scope, it works as Leitwort
+            last_verse = (i == n)
+            if (len(bagOfWordsQueue) == VERSE_WINDOW or last_verse) and len(bagOfWordsQueue) > 0:
+                for word, count in bagOfWordsSpan.items():
+                    if count % REPETITION == 0 and (last_verse or (word not in bagOfWordsCurrent and word in bagOfWordsQueue[0])):
+                        r = word_occurrences[word][0]
+                        r2 = word_occurrences[word][-1]
+                        lower_word = word.lower()
+                        tfidf = tf_parsha[parsha][lower_word]
+                        heb = unromanize(word)
 
-            if word_occurrences[word] == [] or word_occurrences[word][-1] != ref:
-                word_occurrences[word].append(ref)
+                        # check that this Leitwort actually occurs in an island
+                        # that is, (1) first get the gap between first and last verse
+                        # to acquire the true span, different from the window
+                        start = refs.index(r)
+                        end = refs.index(r2)
+                        span = end - start + 1
+                        half_span = span // 4
+                        prior_window = start - half_span
+                        prior_window = max(prior_window, 0)
+                        follow_window = end + half_span
+                        follow_window = min(follow_window, n-1)
 
-        bagOfWordsQueue.append(bagOfWordsCurrent)
-        refQueue.append(ref)
+                        # then, (2) take half that window and make sure that the
+                        # Leitwort doesn't occur in that half-span of verses before
+                        # and after
+                        found = False
 
+                        for i in range(prior_window, start):
+                            if word in bagOfWordsVerses[i].keys():
+                                found = True
+                        for i in range(end + 1, follow_window):
+                            if word in bagOfWordsVerses[i].keys():
+                                found = True
 
-    # todo finish leitwort detection
+                        if not found:
+                            print(r, '-', r2, heb, "occurred", count, "times with tf-idf of", tfidf)
+                            csv_writer.writerow([r, r2, span, half_span, heb, count, tfidf])
+
+                refQueue.pop(0)
+                # time to shift off the first item
+                # maybe should use the fast one from
+                # collections to speed this up
+                p = bagOfWordsQueue.pop(0)
+                # remove each word from span
+                for word, count in p.items():
+                    bagOfWordsSpan[word] -= count
+
+                    if bagOfWordsSpan[word] == 0:
+                        del bagOfWordsSpan[word]
+
+                    word_occurrences[word].pop(0)
+
+            for word, count in bow.items(): # start with unigrams
+                bagOfWordsSpan[word] += count
+
+                if word_occurrences[word] == [] or word_occurrences[word][-1] != ref:
+                    word_occurrences[word].append(ref)
+
+            bagOfWordsQueue.append(bow)
+            refQueue.append(ref)
+    f.close()
 
 # step 1: create the parshiot.txt, helpful for tf-idf
 # comment out if you already have parshiot.txt
